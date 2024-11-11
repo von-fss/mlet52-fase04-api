@@ -1,5 +1,9 @@
 import requests
 import pandas as pd
+from pydantic import BaseModel
+
+class Ticker(BaseModel):
+    name: str 
 
 def get_tickers_list() -> pd.DataFrame:
     """
