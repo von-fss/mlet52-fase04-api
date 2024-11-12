@@ -4,21 +4,14 @@ from sklearn.preprocessing import MinMaxScaler
 import numpy as np
 import yfinance as yf
 
-## Mocked
-yfinance_config: dict = {
-    'ticker':'NVDA',
-    'period':'1mo'    
-}
-#################
-
-def read_yfinance(papper: str, period: str) -> pd.DataFrame:
-    nvda: pd.DataFrame = yf.Ticker(papper).history(period)
+def read_yfinance(ticker: str, period: str) -> pd.DataFrame:
+    nvda: pd.DataFrame = yf.Ticker(ticker).history(period)
     return pd.DataFrame(nvda['Close'])
 
 class model_prediction:
-    def __init__(self, papper, period):
-        self.model = load_model(r'app\internal\train_model\models\model_{}.keras'.format(papper))
-        self.data = read_yfinance(papper, period)
+    def __init__(self, ticker, period):
+        self.model = load_model(r'app\internal\train_model\models\model_{}.keras'.format(ticker))
+        self.data = read_yfinance(ticker, period)
         self.X = []
         self.time_step = 3
 
