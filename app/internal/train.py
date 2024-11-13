@@ -1,11 +1,10 @@
 import pandas as pd
 from .utils import LSTM_model_train
-from ..utils import yfinance_config
-from .utils import modelConfig
+from ..routers.utils import modelConfig
 
 def train_model(config: modelConfig) -> None:
     lstm_model = LSTM_model_train(config)
-    lstm_model.LSTMModel_train()
+    lstm_model.LSTMModel_train()    
     lstm_model.save()
 
 ##### thinking about it

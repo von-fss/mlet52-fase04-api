@@ -1,9 +1,31 @@
 import requests
 import pandas as pd
 from pydantic import BaseModel
+from dataclasses import dataclass, asdict
 
 class Ticker(BaseModel):
     name: str 
+
+@dataclass
+class modelConfig:
+    ticker: str = 'NVDA'
+    time_step: int = 5
+    epochs: int = 20
+    optimizer: str = 'adam'
+    batch_size: int = 15
+    learning_rate: float = 0.05
+    nn_activation: str = 'relu'
+    nn_max_units: int = 100
+    nn_layers: int = 2
+    nn_return_sequences: bool = True
+    loss: str = 'mean_squared_error'
+    dropout: bool = True
+    dropout_value: float = 0.2
+    period: str = '3mo'
+
+    def get_parameters(self) -> dict:
+        return asdict(self)
+
 
 def get_tickers_list() -> pd.DataFrame:
     """
