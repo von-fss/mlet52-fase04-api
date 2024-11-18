@@ -45,3 +45,7 @@ def predict_model_route(ticker: str) -> dict:
     """
     prediction = predict_model(ticker)
     return {"ticker": str(ticker), "predicted": float(prediction)}
+
+@router.get('/list_models')
+def list_model_route() -> tuple:
+    return {(1, 2)}
