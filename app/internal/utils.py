@@ -16,21 +16,26 @@ class model_prediction:
         self.model = load_model(r'app\internal\models\model_{}.keras'.format(ticker))
         self.data = read_yfinance(ticker, period)
         self.X = []
-        self.time_step = 3
+        self.time_step = 5
 
     def predict(self) -> float:
         scaler = MinMaxScaler(feature_range=(0, 1))
         scaled_data = scaler.fit_transform(self.data)
 
-        for i in range(len(scaled_data)-self.time_step):
-            self.X.append(scaled_data[i:(i+self.time_step), 0])
+        ################### not for mvp ###################
+        # Next version check for time_step implementation #
+        #for i in range(len(scaled_data)-self.time_step):
+        #    self.X.append(scaled_data[i:(i+self.time_step), 0])
 
-        self.X = np.array(self.X)
+        #self.X = np.array(self.X)
+        #######################################################
+        
+        self.X = np.array(scaled_data)
         self.X = np.reshape(self.X, (self.X.shape[0], self.X.shape[1], 1))
 
         prediction = self.model.predict(self.X)
-        prediction = scaler.inverse_transform(prediction)
-        return prediction[0]
+        prediction = scaler.inverse_transform(prediction[0])
+        return prediction[0][0]
 
 @dataclass
 class expandedModelConfig(modelConfig):

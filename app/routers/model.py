@@ -35,15 +35,18 @@ async def train_model_route(config: modelConfig) -> dict:
     train_model(config)
     return {'result': config.get_parameters()}
 
+@router.get('/predict')
+def predict_model_route(ticker: str) -> dict:
+    """
+    Description:
+        Procura por um modelo já gerado e fazer a predição
 
-# @router.get('/predict')
-# def predict_model(ticker: str) -> dict:
-#     """
-#     Description:
-#         Procura por um modelo já gerado e fazer a predição
+    Args:
+        ticker: str -> Código do ticker a ser analisado
+    """
+    prediction = predict_model(ticker)
+    return {"ticker": str(ticker), "predicted": float(prediction)}
 
-#     Args:
-#         ticker: str -> Código do ticker a ser analisado
-#     """
-#     prediction = predict_model(ticker)
-#     return {"ticker": str(ticker), "predicted": float(prediction)}
+@router.get('/list_models')
+def list_model() -> dict:
+    return {"model":"model_nvda"}
