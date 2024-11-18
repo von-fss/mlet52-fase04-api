@@ -11,8 +11,8 @@ router = APIRouter(
     responses={404: {'description': 'Not Found'}}
 )
 
-# @router.get('/')
-# async def read_yfinance(ticker: str):
+@router.get('/getHistory')
+async def read_yfinance(ticker: str):
 #     """
 #     Recebe o código de um ticker e retorna o histórico de 1mês
 
@@ -20,9 +20,9 @@ router = APIRouter(
 
 #     :return: Os valores do último mês
 #     """
-#     nvda = yf.Ticker(ticker).history(period="1mo").reset_index()
-#     nvda['Date'] = pd.to_datetime(nvda['Date']).dt.strftime('%Y-%m-%d')
-#     return JSONResponse(nvda.to_dict(orient="records"))
+    nvda = yf.Ticker(ticker).history(period="1mo").reset_index()
+    nvda['Date'] = pd.to_datetime(nvda['Date']).dt.strftime('%Y-%m-%d')
+    return JSONResponse(nvda.to_dict(orient="records"))
 
 
 @router.get('/tickers', response_model=List[ModelTickers])
