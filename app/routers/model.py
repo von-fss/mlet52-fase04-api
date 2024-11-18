@@ -39,14 +39,9 @@ async def train_model_route(config: modelConfig) -> dict:
 def predict_model_route(ticker: str) -> dict:
     """
     Description:
-        Procura por um modelo já gerado e fazer a predição
-
+        Predict next value from a pre trained model
     Args:
         ticker: str -> Código do ticker a ser analisado
     """
     prediction = predict_model(ticker)
     return {"ticker": str(ticker), "predicted": float(prediction)}
-
-@router.get('/list_models')
-def list_model() -> dict:
-    return {"model":"model_nvda"}
