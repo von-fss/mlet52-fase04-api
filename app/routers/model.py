@@ -9,6 +9,10 @@ router = APIRouter(
     responses={404: {'description': 'Not Found'}}
 )
 
+
+### Deixar os hyperparameters de maior relevância travados (optimizer, activation e return_sequences)
+### time_step tem que ser o mesmo time_step da predição ###
+
 @router.post('/train')
 async def train_model_route(config: modelConfig) -> dict:
     """
@@ -48,4 +52,8 @@ def predict_model_route(ticker: str) -> dict:
 
 @router.get('/list_models')
 def list_model_route() -> tuple:
-    return {(1, 2)}
+    return {(1, 2)}\
+    
+
+
+

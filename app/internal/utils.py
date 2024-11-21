@@ -1,11 +1,13 @@
 from keras.layers import LSTM, Dense, Input, Dropout
 from keras.models import Sequential, load_model
+import tensorflow as tf
 from sklearn.preprocessing import MinMaxScaler
 import yfinance as yf
 import numpy as np
 import pandas as pd
 from ..routers.utils import modelConfig
 from dataclasses import dataclass
+from sklearn.model_selection import train_test_split
 
 def read_yfinance(ticker: str, period: str) -> pd.DataFrame:
     nvda: pd.DataFrame = yf.Ticker(ticker).history(period)
@@ -13,7 +15,7 @@ def read_yfinance(ticker: str, period: str) -> pd.DataFrame:
 
 class model_prediction:
     def __init__(self, ticker, period):
-        self.model = load_model(r'app\internal\models\model_{}.keras'.format(ticker))
+        self.model = load_model(r'app\internal\models\model_{}.keras'.format(ticker), custom_objects={'rmse_error':rmse_error})
         self.data = read_yfinance(ticker, period)
         self.X = []
         self.time_step = 5
@@ -46,42 +48,55 @@ class expandedModelConfig(modelConfig):
 def create_lstm_model(X) -> Sequential:
     config: expandedModelConfig = expandedModelConfig()
     model = Sequential()
-    model.add(Input(shape=(X.shape[1], 1)))
+    model.add(Input(shape=(np.array(X).shape[1], 1)))
     for i in range(config.nn_layers):
         model.add(LSTM(units=config.nn_max_units//(i+1), activation=config.nn_activation, return_sequences=config.nn_return_sequences))
         config.add_dropout(model, (i == config.nn_layers - 1))
     model.add(Dense(units=1))
-    model.compile(optimizer=config.optimizer, loss=config.loss)
+    model.compile(optimizer=config.optimizer, loss=config.loss, metrics=['mae', rmse_error])
     return model
+
+def rmse_error(y_test, y_pred):
+    return tf.sqrt(tf.reduce_mean(tf.square(y_test - y_pred)))
 
 class LSTM_model_train:
     def __init__(self, config: modelConfig):
         self.config = config
         self.data : pd.DataFrame = read_yfinance(config.ticker, config.period)
-        self.X = []
-        self.y = []
+        #self.X: np.array = np.array([])
+        #self.y: np.array = np.array([])
+        self.X_train: np.array = np.array([])
+        self.X_test: np.array = np.array([])
+        self.y_train: np.array = np.array([])
+        self.y_test: np.array = np.array([])
         self.model = None
 
-    def _create_dataset(self, scaled_data) -> np:
+    def _create_dataset(self, scaled_data) -> None:
         X, y = [], []
         for i in range(len(scaled_data) - self.config.time_step - 1):
             X.append(scaled_data[i:(i + self.config.time_step), 0])
             y.append(scaled_data[i + self.config.time_step, 0])
-        return np.array(X), np.array(y)
+        X = np.array(X)
+        y = np.array(y)
+        self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(X, y, test_size=0.1, random_state=42, shuffle=False)
+        #return X, y
 
     def _LSTM_parameters(self) -> None:
         scaler = MinMaxScaler(feature_range=(0, 1))
-        scaled_data = scaler.fit_transform(self.data)
-        self.X, self.y = self._create_dataset(scaled_data)
-        self.X = self.X.reshape(self.X.shape[0], self.X.shape[1], 1)
+        scaled_data = scaler.fit_transform(self.data)  
+        self._create_dataset(scaled_data)
+        #self.X = self.X.reshape(self.X.shape[0], self.X.shape[1], 1)
 
-    def _LSTMModel(self) -> None:
-        self.model = create_lstm_model(self.X)
+    def _LSTM_Model(self) -> None:
+        self.model = create_lstm_model(self.X_train)
+
+    def _LSTM_Train(self) -> None:
+        self.model.fit(self.X_train, self.y_train, epochs=self.config.epochs, batch_size=self.config.batch_size, validation_data=(self.X_test, self.y_test))
 
     def LSTMModel_train(self) -> None:
         self._LSTM_parameters()
-        self._LSTMModel()
-        self.model.fit(self.X, self.y, epochs=self.config.epochs, batch_size=self.config.batch_size)
+        self._LSTM_Model()
+        self._LSTM_Train()
 
     def save(self) -> None:
         self.model.save(r'app\\internal\\models\\model_{}.keras'.format(self.config.ticker))
