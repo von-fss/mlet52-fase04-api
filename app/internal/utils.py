@@ -114,8 +114,16 @@ class LSTM_model_train:
 
     def save(self) -> None:
         self.model.save(r'app\\internal\\models\\model_{}.keras'.format(self.config.ticker))
+        metric = model_prediction(self.config.ticker, self.config.period).model_evaluate()        
+        
+        _mse = metric['MSE']
+        _mae = metric['MAE']
+        _rmse = metric['RMSE']
+        
+        _tag = f'time_step={self.config.time_step}&epoch={self.config.epochs}&batch_size={self.config.batch_size}&learning_rate={self.config.learning_rate}&nn_activation={self.config.nn_activation}&nn_max_units={self.config.nn_max_units}&MSE={str(_mse)}&MAE={str(_mae)}&RMSE={str(_rmse)}'
+        
     # Upload a new file
         s3 = boto3.resource('s3')
         with open(r'app\\internal\\models\\model_{}.keras'.format(self.config.ticker), 'rb') as data:
-            s3.Bucket('modeldataqbase').put_object(Key=r'model/{}.keras'.format(self.config.ticker), Body=data)
+            s3.Bucket('modeldataqbase').put_object(Key=r'model/{}.keras'.format(self.config.ticker), Body=data, Tagging=_tag)
         
