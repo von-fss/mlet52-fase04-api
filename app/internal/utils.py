@@ -40,6 +40,19 @@ class model_prediction:
         prediction = scaler.inverse_transform(prediction[0])
         return prediction[0][0]
 
+    def model_evaluate(self) -> dict:
+        scaler = MinMaxScaler(feature_range=(0, 1))
+        scaled_data = scaler.fit_transform(self.data)
+        X = scaled_data[-4:].reshape(1,4,1)
+        y = scaled_data[4].reshape(1, 1)
+        mse, mae, rmse_error = self.model.evaluate(X, y)
+        metric = {
+            'MSE':mse,
+            'MAE':mae,
+            'RMSE':rmse_error
+        }
+        return metric
+
 @dataclass
 class expandedModelConfig(modelConfig):
     def add_dropout(self, model, last_layer) -> None:

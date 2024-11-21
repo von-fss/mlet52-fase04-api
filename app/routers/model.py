@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from ..internal.train import train_model
-from ..internal.predict import predict_model
+from ..internal.predict import predict_model, evaluate_model
 from .utils import modelConfig
 
 router = APIRouter(
@@ -50,10 +50,10 @@ def predict_model_route(ticker: str) -> dict:
     prediction = predict_model(ticker)
     return {"ticker": str(ticker), "predicted": float(prediction)}
 
-@router.get('/list_models')
+@router.get('/list')
 def list_model_route() -> tuple:
-    return {(1, 2)}\
+    return {(1, 2)}
     
-
-
-
+@router.get('/evaluate')
+def evaluate_model_route(ticker: str) -> dict:
+    return evaluate_model(ticker)
