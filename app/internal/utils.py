@@ -18,8 +18,8 @@ class model_prediction:
     def __init__(self, ticker, period):
 
         s3 = boto3.client('s3')
-        with open(r'app\internal\models\model_{}.keras', 'wb') as f:
-            s3.get_object(Bucket='modeldataqbase', Key=r'model/{}.keras'.format(self.config.ticker))
+        with open(r'app\internal\models\model_{}.keras', 'wb') as f:            
+            s3.download_file('modeldataqbase', r'model/{}.keras'.format(ticker), r'app\internal\models\model_{}.keras'.format(ticker))            
 
         self.model = load_model(r'app\internal\models\model_{}.keras'.format(ticker), custom_objects={'rmse_error':rmse_error})
         
