@@ -61,5 +61,6 @@ def evaluate_model_route(ticker: str) -> dict:
 
 
 @router.get('/get_evaluate_from_training')
-def load_evaluate_from_training(ticker: str) -> dict:
-    return model_prediction.get_evaluate_from_training()
+def load_evaluate_from_training(ticker: str, period: str) -> dict:
+    mp = model_prediction(ticker, period)
+    return mp.get_evaluate_from_training()
