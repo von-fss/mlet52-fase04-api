@@ -115,3 +115,6 @@ websockets==14.0
 Werkzeug==3.1.3
 wrapt==1.16.0
 yfinance==0.2.48
+
+pyinstrument~=5.0.0
+memory-profiler~=0.61.0
